@@ -10,7 +10,7 @@ DISCORD_TOKEN = os.environ.get('DISCORD_TOKEN')
 BYTEZ_KEY = "f4cc6d4dbf0c693ed79841d709bc5455"
 
 sdk = Bytez(BYTEZ_KEY)
-model = sdk.model("openai/gpt-4o")
+model = sdk.model("openai/gpt-oss-120b")
 
 intents = discord.Intents.default()
 intents.message_content = True
@@ -27,7 +27,7 @@ user_mode = {}
 
 @bot.event
 async def on_ready():
-    print(f"{bot.user} is online")
+    print(f"✅ {bot.user} is online with gpt-oss-120b")
     await bot.tree.sync()
 
 @bot.event
@@ -41,27 +41,34 @@ async def on_message(message):
             return
             
         async with message.channel.typing():
-            uid = message.author.id
-            mode = user_mode.get(uid, "normal")
-            
-            msgs = [{"role": "system", "content": modes[mode]}]
-            msgs.extend(memory[uid][-6:])
-            msgs.append({"role": "user", "content": content})
-            
-            result = await asyncio.get_event_loop().run_in_executor(None, lambda: model.run(msgs))
-            
-            if result.error:
+            try:
+                uid = message.author.id
+                mode = user_mode.get(uid, "normal")
+                
+                msgs = [{"role": "system", "content": modes[mode]}]
+                msgs.extend(memory[uid][-6:])
+                msgs.append({"role": "user", "content": content})
+                
+                result = await asyncio.get_event_loop().run_in_executor(None, lambda: model.run(msgs))
+                
+                if result.error:
+                    await message.channel.send("API error. Try again.")
+                elif result.output:
+                    if isinstance(result.output, list) and len(result.output) > 0:
+                        reply = result.output[-1].get("content", str(result.output[-1]))
+                    else:
+                        reply = str(result.output)
+                    reply = reply[:1900]
+                    
+                    memory[uid].append({"role": "user", "content": content})
+                    memory[uid].append({"role": "assistant", "content": reply})
+                    if len(memory[uid]) > 12:
+                        memory[uid] = memory[uid][-12:]
+                    
+                    await message.channel.send(reply)
+            except Exception as e:
+                print(f"Error: {e}")
                 await message.channel.send("Error. Try again.")
-            elif result.output:
-                reply = result.output[-1]["content"] if isinstance(result.output, list) else str(result.output)
-                reply = reply[:1900]
-                
-                memory[uid].append({"role": "user", "content": content})
-                memory[uid].append({"role": "assistant", "content": reply})
-                if len(memory[uid]) > 12:
-                    memory[uid] = memory[uid][-12:]
-                
-                await message.channel.send(reply)
 
 @bot.tree.command(name="mode", description="Change personality")
 @app_commands.choices(mode=[
