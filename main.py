@@ -1,4 +1,3 @@
-DISCORD_TOKEN = os.environ.get('DISCORD_TOKEN')
 import discord
 from discord.ext import commands
 from discord import app_commands
