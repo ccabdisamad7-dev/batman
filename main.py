@@ -1,3 +1,4 @@
+DISCORD_TOKEN = os.environ.get('DISCORD_TOKEN')
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -333,4 +334,4 @@ print("✓ Web server started on port 8080")
 # Run bot
 if __name__ == "__main__":
     print("🦇 Starting Batman Bot...")
-    bot.run(MTQ4NjQ1NDMwNTY4MTU3MjA4MQ.GB-uP_.Aif4pqSRevCr-PaxEoD-TbwigPvwq8Y8S8nfAg)
+    bot.run(DISCORD_TOKEN)
