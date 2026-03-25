@@ -7,7 +7,7 @@ import os
 from collections import defaultdict
 
 DISCORD_TOKEN = os.environ.get('DISCORD_TOKEN')
-BYTEZ_KEY = "f4cc6d4dbf0c693ed79841d709bc5455"
+BYTEZ_KEY = "MBOq/sU88vSQ/QdoMfEP6yMN26LV1BZbK8uPxyY25eFKV5MdCfifpcwqvzISF6WQZ0dEzX4j+oX6hkepIU4hNogmNRptE41oj06xKP4WB4gdYMxORsCfXD5sMAkzBXPer2Oz7y4="
 
 sdk = Bytez(BYTEZ_KEY)
 model = sdk.model("openai/gpt-oss-120b")
@@ -27,7 +27,7 @@ user_mode = {}
 
 @bot.event
 async def on_ready():
-    print(f"✅ {bot.user} is online with gpt-oss-120b")
+    print(f"✅ {bot.user} is online")
     await bot.tree.sync()
 
 @bot.event
@@ -67,7 +67,7 @@ async def on_message(message):
                     
                     await message.channel.send(reply)
             except Exception as e:
-                print(f"Error: {e}")
+                print(e)
                 await message.channel.send("Error. Try again.")
 
 @bot.tree.command(name="mode", description="Change personality")
